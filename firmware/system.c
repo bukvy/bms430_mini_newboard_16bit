@@ -38,6 +38,7 @@ void Init_SYS(void)
   
   // Start XT2
   unsigned int i;
+  // This block for crystal resonator
   BCSCTL1 &= ~XT2OFF;  // XT2 = HF XTAL
   do
   {
@@ -45,7 +46,7 @@ void Init_SYS(void)
     for (i = 0xFF; i > 0; i--);           // Time for flag to set
   } while ((IFG1 & OFIFG) != 0);          // OSCFault flag still set?  //
   BCSCTL2 = SELM1+SELS;
-    
+// end of block for crystall resonator
   // I/O 
   P1SEL=0;
   P2DIR |= /*BIT2 +*/ BIT0 /*+ BIT0*/;              
@@ -61,8 +62,16 @@ void Init_SYS(void)
   TACTL |= MC_2;                              // mc_2= continuous up to 0xffff Start Timer_A in UP to CCR0
    
 }
+/* this is for internal DCO from system.c experimental Tychkov Vympel
+BCSCTL1= 11; // XT2 enable but will not be connected to MCLK ( later on) Experimental for clocking from DCO  RSEL10  3.3. MHz  XT2=1 DISABle XT2 crystall
+DCOCTL=(2 << 5) | 11 ;  //1 << 5) | 24 works (3 << 5) | 2 works // Fitting of DCO accodingly whith REL ( see line above)  11 that is how offen DCO (2 <<5  ) +1 used in DCO 2 << 5  ( HIGH three bits in DCOCTL)
 
-//3.6864
+BCSCTL3=BIT7;  /// XT2Sx=2:  3-16Mhz range Other bits =0
+    BCSCTL2 = 0; // Experimental for clocking from DCO
+    for (i = 0x5FF; i > 0; i--); // Small delay
+*/
+
+//Crystall 3.6864
 #pragma vector=TIMERA0_VECTOR
 __interrupt void TIMERA0_VECTOR_handler(void)
 {
